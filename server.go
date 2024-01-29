@@ -52,7 +52,8 @@ func main() {
 
 	app.Delete("/delete", func(c *fiber.Ctx) error {
 		return indexHandler(c, db)
-	}) // Add this
+	})
+
 
 	port := os.Getenv("PORT")
 	if port == "" {
