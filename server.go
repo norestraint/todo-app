@@ -19,6 +19,10 @@ const (
 	dbname   = "todos"
 )
 
+type todo struct {
+	Item string
+}
+
 func main() {
 	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 
@@ -54,13 +58,12 @@ func main() {
 		return indexHandler(c, db)
 	})
 
-
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "3000"
 	}
 
-    app.Static("/", "./public/")
+	app.Static("/", "./public/")
 	log.Fatalln(app.Listen(fmt.Sprintf(":%v", port)))
 }
 
@@ -87,13 +90,33 @@ func indexHandler(c *fiber.Ctx, db *sql.DB) error {
 }
 
 func postHandler(c *fiber.Ctx, db *sql.DB) error {
-	return c.SendString("Hello")
+	newTodo := todo{}
+	err := c.BodyParser(&newTodo)
+	if err != nil {
+		log.Printf("An error occurred: %v", err)
+		return c.SendString(err.Error())
+	}
+
+	fmt.Printf("%v", newTodo)
+	if newTodo.Item != "" {
+		_, err := db.Exec("INSERT into todos VALUES ($1)", newTodo.Item)
+		if err != nil {
+            log.Fatalf("An error occurred while executing query: %v", err)
+			return c.SendString(err.Error())
+		}
+	}
+    return c.Redirect("/")
 }
 
 func putHandler(c *fiber.Ctx, db *sql.DB) error {
-	return c.SendString("Hello")
+    olditem := c.Query("olditem")
+    newitem := c.Query("newitem")
+    db.Exec("UPDATE todos SET item=$1 WHERE item=$2", newitem, olditem)
+    return c.Redirect("/")
 }
 
 func deleteHandler(c *fiber.Ctx, db *sql.DB) error {
-	return c.SendString("Hello")
+    todoToDelete := c.Query("item")
+    db.Exec("DELETE from todos WHERE item=$1", todoToDelete)
+    return c.SendString("deleted")
 }
