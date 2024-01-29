@@ -16,7 +16,7 @@ const (
 	port     = 5432
 	user     = "notagod"
 	password = "simplepassword"
-	dbname   = "todo"
+	dbname   = "todos"
 )
 
 func main() {
