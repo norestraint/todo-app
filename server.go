@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html/v2"
 	_ "github.com/lib/pq"
 )
 
@@ -32,7 +33,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	app := fiber.New()
+	engine := html.New("./views", ".html")
+	app := fiber.New(fiber.Config{
+		Views: engine,
+	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return indexHandler(c, db)
@@ -54,6 +58,8 @@ func main() {
 	if port == "" {
 		port = "3000"
 	}
+
+    app.Static("/", "./public/")
 	log.Fatalln(app.Listen(fmt.Sprintf(":%v", port)))
 }
 
