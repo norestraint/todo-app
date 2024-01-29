@@ -1,23 +1,54 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	_ "github.com/lib/pq"
+)
+
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "norestraint"
+	password = "simplepassword"
+	dbname   = "todo"
 )
 
 func main() {
+	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	app := fiber.New()
 
-	app.Get("/", indexHandler) // Add this
+	app.Get("/", func(c *fiber.Ctx) error {
+		return indexHandler(c, db)
+	})
 
-	app.Post("/", postHandler) // Add this
+	app.Post("/", func(c *fiber.Ctx) error {
+		return indexHandler(c, db)
+	})
 
-	app.Put("/update", putHandler) // Add this
+	app.Put("/update", func(c *fiber.Ctx) error {
+		return indexHandler(c, db)
+	})
 
-	app.Delete("/delete", deleteHandler) // Add this
+	app.Delete("/delete", func(c *fiber.Ctx) error {
+		return indexHandler(c, db)
+	}) // Add this
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -26,18 +57,18 @@ func main() {
 	log.Fatalln(app.Listen(fmt.Sprintf(":%v", port)))
 }
 
-func indexHandler(c *fiber.Ctx) error {
+func indexHandler(c *fiber.Ctx, db *sql.DB) error {
 	return c.SendString("Hello")
 }
 
-func postHandler(c *fiber.Ctx) error {
+func postHandler(c *fiber.Ctx, db *sql.DB) error {
 	return c.SendString("Hello")
 }
 
-func putHandler(c *fiber.Ctx) error {
+func putHandler(c *fiber.Ctx, db *sql.DB) error {
 	return c.SendString("Hello")
 }
 
-func deleteHandler(c *fiber.Ctx) error {
+func deleteHandler(c *fiber.Ctx, db *sql.DB) error {
 	return c.SendString("Hello")
 }
