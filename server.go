@@ -15,6 +15,7 @@ const (
 	host     = "localhost"
 	port     = 5432
 	user     = "norestraint"
+	user     = "notagod"
 	password = "simplepassword"
 	dbname   = "todo"
 )
